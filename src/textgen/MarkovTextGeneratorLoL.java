@@ -33,6 +33,42 @@ public class MarkovTextGeneratorLoL implements MarkovTextGenerator {
 	public void train(String sourceText)
 	{
 		// TODO: Implement this method
+		if (this.wordList.size() != 0) {
+			return;
+		}
+		if (sourceText.length() == 0)
+			return;
+		
+		String[] words = sourceText.split("[\\s]+");
+		starter = words[0];
+		String prevWord = starter;
+		String w;
+		for (int i = 1; i <= words.length; i++) {
+			if (i == words.length)
+				w = starter;
+			else
+				w = words[i];
+			
+			ListNode node = new ListNode(prevWord);
+			if (node == null) {
+				node = new ListNode(prevWord);
+				node.addNextWord(w);
+				wordList.add(node);
+			} else {
+				node.addNextWord(w);
+			}
+			prevWord = w;
+			
+		}
+	}
+	
+	private ListNode findNode(String word) {
+		for (ListNode node: this.wordList) {
+			if (node.getWord().equals(word)) {
+				return node;
+			}
+		}
+		return new ListNode(word);
 	}
 	
 	/** 
@@ -41,7 +77,21 @@ public class MarkovTextGeneratorLoL implements MarkovTextGenerator {
 	@Override
 	public String generateText(int numWords) {
 	    // TODO: Implement this method
-		return null;
+		String output = "";
+		
+		if (wordList.isEmpty() || numWords == 0)
+			return output;
+		
+		String currWord = starter;
+		output += currWord;
+		
+		for (int i = 1; i < numWords; i++) {
+			ListNode node = findNode(currWord);
+			String w = node.getRandomNextWord(rnGenerator);
+			output += " " + w;
+			currWord = w;
+		}
+		return output;
 	}
 	
 	
@@ -62,6 +112,8 @@ public class MarkovTextGeneratorLoL implements MarkovTextGenerator {
 	public void retrain(String sourceText)
 	{
 		// TODO: Implement this method.
+		wordList = new LinkedList<ListNode>();
+		train(sourceText);
 	}
 	
 	// TODO: Add any private helper methods you need here.
